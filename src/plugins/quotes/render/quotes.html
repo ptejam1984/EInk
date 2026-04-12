@@ -1,0 +1,10 @@
+{% extends "plugin.html" %}
+
+{% block content %}
+<div class="quotes-container">
+    <div class="quote-mark open-quote">"</div>
+    <blockquote class="quote-text">{{ quote_text }}</blockquote>
+    <div class="quote-mark close-quote">"</div>
+    <p class="quote-author">— {{ quote_author }}</p>
+</div>
+{% endblock %}

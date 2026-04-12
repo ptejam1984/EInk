@@ -1,0 +1,86 @@
+<div class="form-group">
+    <label class="form-label">Habits</label>
+    <p style="font-size:12px;color:var(--text-secondary);margin:0 0 10px;">
+        Add habits below. Check today's box to mark a habit as done for today.
+    </p>
+
+    <div id="habit-list"></div>
+    <button type="button" onclick="addHabitRow()" style="margin-top:8px;padding:6px 14px;border:1px dashed var(--border-color);border-radius:6px;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:13px;">
+        + Add Habit
+    </button>
+    <!-- Hidden field — stores JSON for the plugin -->
+    <input type="hidden" id="habits_data" name="habits_data" value="[]">
+</div>
+
+<script>
+    let habitsState = [];
+
+    function todayISO() {
+        return new Date().toISOString().slice(0, 10);
+    }
+
+    function renderHabits() {
+        const container = document.getElementById('habit-list');
+        container.innerHTML = '';
+        habitsState.forEach((h, idx) => {
+            const doneToday = h.completions.includes(todayISO());
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:8px;';
+            row.innerHTML = `
+                <input type="text" value="${h.name}" placeholder="Habit name"
+                       class="form-input" style="flex:1;"
+                       onchange="habitsState[${idx}].name = this.value; syncHiddenField();">
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;white-space:nowrap;cursor:pointer;">
+                    <input type="checkbox" ${doneToday ? 'checked' : ''}
+                           onchange="toggleToday(${idx}, this.checked)">
+                    Done today
+                </label>
+                <button type="button" onclick="removeHabit(${idx})"
+                        style="padding:3px 8px;border:1px solid var(--border-color);border-radius:4px;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:12px;">✕</button>`;
+            container.appendChild(row);
+        });
+        syncHiddenField();
+    }
+
+    function addHabitRow() {
+        habitsState.push({ name: '', completions: [] });
+        renderHabits();
+    }
+
+    function removeHabit(idx) {
+        habitsState.splice(idx, 1);
+        renderHabits();
+    }
+
+    function toggleToday(idx, checked) {
+        const today = todayISO();
+        if (checked) {
+            if (!habitsState[idx].completions.includes(today))
+                habitsState[idx].completions.push(today);
+        } else {
+            habitsState[idx].completions = habitsState[idx].completions.filter(d => d !== today);
+        }
+        syncHiddenField();
+    }
+
+    function syncHiddenField() {
+        document.getElementById('habits_data').value = JSON.stringify(habitsState);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Load existing state
+        if (loadPluginSettings && pluginSettings.habits_data) {
+            try {
+                habitsState = JSON.parse(pluginSettings.habits_data) || [];
+            } catch (e) { habitsState = []; }
+        }
+        if (habitsState.length === 0) {
+            // Provide two example habits to get started
+            habitsState = [
+                { name: 'Exercise', completions: [] },
+                { name: 'Read', completions: [] },
+            ];
+        }
+        renderHabits();
+    });
+</script>

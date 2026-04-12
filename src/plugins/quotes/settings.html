@@ -1,0 +1,17 @@
+<div class="form-group">
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 8px;">
+        Displays a different inspirational quote each day — no API key required.<br>
+        The quote rotates automatically at midnight.
+    </p>
+</div>
+
+<script>
+    // Pre-populate settings on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!loadPluginSettings) return;
+        if (pluginSettings.textColor)
+            document.getElementById('textColor').value = pluginSettings.textColor;
+        if (pluginSettings.backgroundColor)
+            document.getElementById('backgroundColor').value = pluginSettings.backgroundColor;
+    });
+</script>

@@ -1,0 +1,31 @@
+{% extends "plugin.html" %}
+
+{% block content %}
+<div class="ht-container">
+    <div class="ht-header">
+        <span class="ht-today">{{ today }}</span>
+        <span class="ht-label">Habit Tracker</span>
+    </div>
+
+    <div class="ht-table">
+        {% for habit in habits %}
+        <div class="ht-row">
+            <div class="ht-name">{{ habit.name }}</div>
+            <div class="ht-streak">
+                🔥 {{ habit.streak }}
+            </div>
+            <div class="ht-grid">
+                {% for cell in habit.grid %}
+                <div class="ht-cell {% if cell.done %}done{% endif %} {% if cell.is_today %}today{% endif %}"
+                     title="{{ cell.date }}"></div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not habits %}
+    <div class="ht-empty">No habits configured yet. Add habits in the plugin settings.</div>
+    {% endif %}
+</div>
+{% endblock %}

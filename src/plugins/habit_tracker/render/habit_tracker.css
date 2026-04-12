@@ -1,0 +1,95 @@
+.ht-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 4% 5%;
+  box-sizing: border-box;
+  font-family: "Jost", sans-serif;
+}
+
+.ht-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4%;
+}
+
+.ht-today {
+  font-size: min(5dvh, 3.8vw);
+  font-weight: 600;
+}
+
+.ht-label {
+  font-size: min(3dvh, 2.2vw);
+  opacity: 0.45;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ht-table {
+  display: flex;
+  flex-direction: column;
+  gap: min(3dvh, 2.5vw);
+  flex: 1;
+  justify-content: center;
+}
+
+.ht-row {
+  display: flex;
+  align-items: center;
+  gap: min(2dvh, 1.5vw);
+}
+
+.ht-name {
+  flex: 0 0 22%;
+  font-size: min(4dvh, 3vw);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ht-streak {
+  flex: 0 0 10%;
+  font-size: min(4dvh, 3vw);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.ht-grid {
+  flex: 1;
+  display: flex;
+  gap: min(0.8dvh, 0.6vw);
+  flex-wrap: nowrap;
+}
+
+.ht-cell {
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 3px;
+  border: 1.5px solid currentColor;
+  opacity: 0.22;
+  min-width: 0;
+}
+
+.ht-cell.done {
+  opacity: 1;
+  background-color: currentColor;
+}
+
+.ht-cell.today {
+  border-width: 2.5px;
+  opacity: 0.5;
+}
+
+.ht-cell.today.done {
+  opacity: 1;
+}
+
+.ht-empty {
+  text-align: center;
+  opacity: 0.5;
+  font-size: min(4dvh, 3vw);
+  margin: auto;
+}

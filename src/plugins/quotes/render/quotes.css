@@ -1,0 +1,45 @@
+.quotes-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 5% 8%;
+  box-sizing: border-box;
+  font-family: "Jost", sans-serif;
+  text-align: center;
+}
+
+.quote-mark {
+  font-size: min(18dvh, 14vw);
+  line-height: 0.6;
+  opacity: 0.18;
+  font-family: Georgia, serif;
+  font-weight: bold;
+  align-self: flex-start;
+  user-select: none;
+}
+
+.close-quote {
+  align-self: flex-end;
+  line-height: 0.4;
+  margin-top: -0.2em;
+}
+
+.quote-text {
+  font-size: min(6dvh, 4.5vw);
+  font-weight: 500;
+  line-height: 1.55;
+  margin: 0.2em 0 0.6em;
+  padding: 0 2%;
+  max-width: 92%;
+}
+
+.quote-author {
+  font-size: min(4dvh, 3vw);
+  font-weight: 400;
+  opacity: 0.65;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
