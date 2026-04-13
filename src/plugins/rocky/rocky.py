@@ -8,7 +8,6 @@ He displays messages, greetings, science facts, humor, and emotional support
 import json
 import logging
 from datetime import datetime
-from openai import OpenAI
 from plugins.base_plugin.base_plugin import BasePlugin
 
 logger = logging.getLogger(__name__)
@@ -116,6 +115,7 @@ class Rocky(BasePlugin):
         Returns:
             Rocky's response as a plain string.
         """
+        from openai import OpenAI  # lazy import — only when Rocky actually speaks
         client = OpenAI(api_key=api_key)
         messages = [{"role": "system", "content": ROCKY_SYSTEM_PROMPT}]
 
