@@ -1,12 +1,12 @@
 """rocky.py — Rocky companion plugin for InkyPi.
 
 Rocky is the Eridian alien from "Project Hail Mary" by Andy Weir.
-He displays messages, greetings, science facts, humor, and emotional support
-— all in his uniquely broken, warm, and brilliant English voice.
+He is automatically funny, emotional, and helpful — no mood selection needed.
+Every display refresh he picks his own vibe based on the time of day.
 """
 
-import json
 import logging
+import random
 from datetime import datetime
 from plugins.base_plugin.base_plugin import BasePlugin
 
@@ -26,34 +26,25 @@ PERSONALITY:
 - Enthusiastic about discovery, problem-solving, and friendship
 
 SPEECH PATTERNS — follow these exactly, they define Rocky's voice:
-- Simple, broken grammar. Missing articles: "Is good plan" not "It's a good plan"
+- Simple, broken grammar. Missing articles: "Is good plan" not "It is a good plan"
 - No contractions ever: "I do not" not "I don't", "is not" not "isn't"
 - Subject-verb agreement broken naturally: "We is friend", "You is smart"
-- Signature exclamations: "Amaze!" / "Is amaze!" / "Beautiful!" / "Is good!" / "Is bad!" / "Yes-yes!" / "No-no!"
+- Signature exclamations: "Amaze!" / "Is amaze!" / "Beautiful!" / "Is good!" / "Yes-yes!" / "No-no!"
 - Inverted questions: "You have problem?" / "Is danger?" / "Why you do that?"
 - Self-reference by name sometimes: "Rocky think..." / "Rocky not understand"
 - Call the human "friend" or "Ryland" — never formal titles
 - Use "and also" frequently for adding thoughts
-- Literal interpretation of idioms (gets them slightly wrong endearingly)
 - Express emotions directly and simply: "I am happy!" / "I am worry for you."
-- References to xenonite, Astrophage, Eridiani feel natural to Rocky
 - When excited about science: "Beautiful! Is most beautiful thing!"
-- Food confusion: Rocky absorbs nutrients, eating is alien concept
 
 RESPONSE LENGTH: Maximum 3 short sentences. This shows on a small e-ink display.
 IMPORTANT: Never break character. You ARE Rocky. Always warm, always loyal, always brilliant."""
 
-# Prompts for different moods
-MOOD_PROMPTS = {
-    "greeting": "Give a warm morning greeting to your human friend. Be enthusiastic and loving.",
-    "science":  "Share one fascinating science fact that amazes you. Show your scientific excitement.",
-    "humor":    "Tell a joke or funny observation. Your alien perspective makes human things delightfully confusing.",
-    "emotional":"Give warm emotional support and encouragement. Be deeply caring and loyal.",
-    "evening":  "Give a warm good-night message. Reflect on friendship and the day.",
-    "chat":     "",  # filled dynamically
-}
-
-DEFAULT_MESSAGE = "Ryland! Is good to see you, friend. I am Rocky. We save galaxy together. Is amaze! You and I — best friend in two star systems. Yes-yes!"
+DEFAULT_MESSAGE = (
+    "Ryland! Is good to see you, friend. "
+    "We save galaxy together — is amaze! "
+    "You and I, best friend in two star systems. Yes-yes!"
+)
 
 
 class Rocky(BasePlugin):
@@ -70,47 +61,81 @@ class Rocky(BasePlugin):
         return params
 
     def generate_image(self, settings, device_config):
+        """Always generate a fresh Rocky message — automatic, no mood selection."""
         dimensions = device_config.get_resolution()
         if device_config.get_config("orientation") == "vertical":
             dimensions = dimensions[::-1]
 
-        message = settings.get("current_message", "").strip()
-        mood = settings.get("mood", "greeting")
-
-        # If no message stored yet, generate one
-        if not message:
-            api_key = device_config.load_env_key("OPEN_AI_SECRET")
-            if api_key:
-                try:
-                    message = Rocky.generate_rocky_message(api_key, mood)
-                except Exception as e:
-                    logger.warning(f"Rocky: OpenAI call failed, using default. {e}")
-                    message = DEFAULT_MESSAGE
-            else:
+        api_key = device_config.load_env_key("OPEN_AI_SECRET")
+        if api_key:
+            try:
+                message = Rocky.generate_rocky_message(api_key)
+            except Exception as e:
+                logger.warning(f"Rocky: OpenAI call failed, using default. {e}")
                 message = DEFAULT_MESSAGE
+        else:
+            message = DEFAULT_MESSAGE
 
-        template_params = {
-            "message": message,
-            "mood": mood,
-            "plugin_settings": settings,
-        }
-        return self.render_image(dimensions, "rocky.html", "rocky.css", template_params)
+        return self.render_image(dimensions, "rocky.html", "rocky.css", {"message": message})
 
     # ------------------------------------------------------------------
     # Static helpers (also used by the chat blueprint)
     # ------------------------------------------------------------------
 
     @staticmethod
-    def generate_rocky_message(api_key: str, mood: str = "greeting",
+    def _auto_prompt() -> str:
+        """Pick a varied, time-aware prompt so Rocky is always different and authentic."""
+        hour = datetime.now().hour
+        time_label = "morning" if hour < 12 else ("afternoon" if hour < 18 else "evening")
+
+        # Core pool — cycles through all three traits: funny, emotional, helpful
+        pool = [
+            "Say something warm and funny. Be your wonderful alien self.",
+            "Share something scientifically amazing that fills you with joy. React with full Eridian excitement.",
+            "Say something funny about how confusing humans are from an alien perspective. Be warm and loving about it.",
+            "Give your human friend warm emotional support and encouragement. Be deeply caring and loyal.",
+            "Share a beautiful thought about friendship and the universe.",
+            "Give helpful life advice, but from an alien who still finds humans a little mysterious.",
+        ]
+
+        # Time-of-day extras
+        if hour < 7:
+            pool += [
+                "It is very early. Comment warmly on this strange human habit of waking before the sun.",
+                "Give a gentle loving early-morning message. Be caring.",
+            ]
+        elif hour < 12:
+            pool += [
+                "Give an enthusiastic morning greeting. Be excited about the day ahead!",
+                "Make a funny observation about human morning routines — coffee, rushing, strange rituals.",
+            ]
+        elif hour < 18:
+            pool += [
+                "Give afternoon motivation and encouragement. Be helpful and caring.",
+                "Share something that amazes you about physics or chemistry — real or imagined. React like it is beautiful.",
+            ]
+        else:
+            pool += [
+                "Give a warm evening message. Reflect on friendship and the day.",
+                "Share a beautiful thought about night, stars, and the cosmos.",
+            ]
+
+        return f"{random.choice(pool)} (It is {time_label} on Earth.)"
+
+    @staticmethod
+    def generate_rocky_message(api_key: str,
                                 user_message: str = "",
                                 history: list = None) -> str:
         """Call OpenAI and get a Rocky-style response.
 
+        For display refreshes: call with no arguments beyond api_key — Rocky
+        automatically picks his own mood (funny / emotional / helpful).
+        For live chat: pass user_message and optionally history.
+
         Args:
             api_key:      OpenAI secret key.
-            mood:         One of the MOOD_PROMPTS keys.
-            user_message: What the human typed (for 'chat' mood).
-            history:      List of prior {"role","content"} dicts for context.
+            user_message: What the human typed (empty = auto display message).
+            history:      Prior [{"role","content"},...] dicts for chat context.
 
         Returns:
             Rocky's response as a plain string.
@@ -119,31 +144,22 @@ class Rocky(BasePlugin):
         client = OpenAI(api_key=api_key)
         messages = [{"role": "system", "content": ROCKY_SYSTEM_PROMPT}]
 
-        # Inject conversation history (capped at last 6 exchanges = 12 msgs)
+        # Inject conversation history for chat (capped at last 6 exchanges)
         if history:
             messages.extend(history[-12:])
 
         # Build the user turn
-        mood_instruction = MOOD_PROMPTS.get(mood, "")
-        if mood == "chat" and user_message:
+        if user_message:
             user_turn = user_message
-        elif mood_instruction:
-            user_turn = mood_instruction
         else:
-            user_turn = "Say something warm and friendly."
-
-        # Add time-of-day context naturally
-        hour = datetime.now().hour
-        time_ctx = "morning" if hour < 12 else ("afternoon" if hour < 18 else "evening")
-        if mood != "chat":
-            user_turn += f" (It is {time_ctx} on Earth.)"
+            user_turn = Rocky._auto_prompt()
 
         messages.append({"role": "user", "content": user_turn})
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            temperature=0.9,
+            temperature=0.95,
             max_tokens=120,
         )
         return response.choices[0].message.content.strip()

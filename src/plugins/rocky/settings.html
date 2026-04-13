@@ -1,22 +1,16 @@
 <style>
-.rocky-chat-wrap { display:flex; flex-direction:column; gap:12px; }
-.rocky-mood-bar { display:flex; flex-wrap:wrap; gap:8px; }
-.mood-btn {
-    padding:6px 14px; border-radius:20px; border:2px solid #ff8c00;
-    background:transparent; color:#ff8c00; cursor:pointer; font-size:13px;
-    font-weight:600; transition:all .2s;
-}
-.mood-btn:hover, .mood-btn.active { background:#ff8c00; color:#000; }
+.rocky-chat-wrap { display:flex; flex-direction:column; gap:14px; }
 .rocky-chat-log {
-    height:280px; overflow-y:auto; border:1px solid var(--border-color);
+    height:320px; overflow-y:auto; border:1px solid var(--border-color);
     border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:10px;
     background:var(--bg-secondary);
 }
-.chat-bubble { max-width:85%; padding:10px 14px; border-radius:14px; font-size:14px; line-height:1.5; }
+.chat-bubble { max-width:85%; padding:10px 14px; border-radius:14px; font-size:14px; line-height:1.55; }
 .bubble-rocky {
     align-self:flex-start;
     background:linear-gradient(135deg,#1a0a00,#2d1500);
-    border:1px solid #ff8c00; color:#ffd080; border-radius:14px 14px 14px 2px;
+    border:1px solid #ff8c00; color:#ffd080;
+    border-radius:14px 14px 14px 2px;
 }
 .bubble-rocky .rocky-label { font-size:11px; color:#ff8c00; font-weight:700; margin-bottom:4px; letter-spacing:.05em; }
 .bubble-human {
@@ -24,6 +18,7 @@
     background:var(--button-bg,#333); color:var(--text-primary);
     border-radius:14px 14px 2px 14px;
 }
+.rocky-typing { font-size:12px; color:#ff8c00; font-style:italic; min-height:18px; margin-top:4px; }
 .rocky-input-row { display:flex; gap:8px; }
 .rocky-input-row input {
     flex:1; padding:10px 14px; border-radius:8px;
@@ -31,89 +26,54 @@
     color:var(--text-primary); font-size:14px;
 }
 .rocky-send-btn {
-    padding:10px 18px; border-radius:8px; border:none;
+    padding:10px 20px; border-radius:8px; border:none;
     background:#ff8c00; color:#000; font-weight:700; cursor:pointer; font-size:14px;
+    transition: opacity .15s;
 }
 .rocky-send-btn:disabled { opacity:.4; cursor:default; }
-.rocky-typing { font-size:12px; color:#ff8c00; font-style:italic; min-height:18px; }
-.push-btn {
-    padding:8px 18px; border-radius:8px; border:2px solid #ff8c00;
-    background:transparent; color:#ff8c00; font-weight:700; cursor:pointer; font-size:13px;
+.rocky-auto-note {
+    font-size:12px; color:var(--text-secondary);
+    border-left:3px solid #ff8c0055; padding-left:10px; line-height:1.5;
 }
-.push-btn:hover { background:#ff8c00; color:#000; }
 </style>
 
 <div class="rocky-chat-wrap">
 
-    <!-- Mood buttons -->
+    <!-- Chat log — Rocky speaks first automatically -->
     <div class="form-group">
-        <label class="form-label">Rocky's mood</label>
-        <div class="rocky-mood-bar">
-            <button type="button" class="mood-btn active" data-mood="greeting">👋 Greeting</button>
-            <button type="button" class="mood-btn" data-mood="science">🔬 Science</button>
-            <button type="button" class="mood-btn" data-mood="humor">😄 Humor</button>
-            <button type="button" class="mood-btn" data-mood="emotional">❤️ Support</button>
-            <button type="button" class="mood-btn" data-mood="evening">🌙 Evening</button>
-        </div>
-        <div style="margin-top:8px;">
-            <button type="button" id="generateMoodBtn" class="push-btn" onclick="generateMoodMessage()">
-                ✨ Generate Rocky Message
-            </button>
-        </div>
-    </div>
-
-    <!-- Chat log -->
-    <div class="form-group">
-        <label class="form-label">Chat with Rocky</label>
-        <div class="rocky-chat-log" id="rockyChatLog">
-            <div class="chat-bubble bubble-rocky">
-                <div class="rocky-label">🪐 ROCKY</div>
-                Ryland! Is good you are here. Talk to Rocky. I am listen! Yes-yes!
-            </div>
-        </div>
-        <div class="rocky-typing" id="rockyTyping"></div>
+        <label class="form-label">🪐 Chat with Rocky</label>
+        <div class="rocky-chat-log" id="rockyChatLog"></div>
+        <div class="rocky-typing" id="rockyTyping">Rocky is waking up... 🪐</div>
         <div class="rocky-input-row" style="margin-top:8px;">
-            <input type="text" id="rockyUserInput" placeholder="Say something to Rocky..." onkeydown="if(event.key==='Enter')sendToRocky()">
-            <button type="button" class="rocky-send-btn" id="rockySendBtn" onclick="sendToRocky()">Send</button>
+            <input type="text" id="rockyUserInput"
+                   placeholder="Say something to Rocky..."
+                   onkeydown="if(event.key==='Enter' && !this.disabled)sendToRocky()"
+                   disabled>
+            <button type="button" class="rocky-send-btn" id="rockySendBtn"
+                    onclick="sendToRocky()" disabled>Send</button>
         </div>
     </div>
 
-    <!-- Push to display -->
-    <div class="form-group" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <button type="button" class="push-btn" onclick="pushToDisplay()">📺 Push to Display</button>
-        <span style="font-size:12px;color:var(--text-secondary);" id="pushStatus"></span>
-    </div>
+    <p class="rocky-auto-note">
+        Rocky picks his own mood every time the display refreshes — funny, emotional, or helpful,
+        depending on the time of day. No settings needed.
+    </p>
 
-    <!-- Hidden fields passed to generate_image() -->
-    <input type="hidden" id="current_message" name="current_message" value="">
-    <input type="hidden" id="mood" name="mood" value="greeting">
 </div>
 
 <script>
 let chatHistory = [];
-let activeMood = 'greeting';
-let lastRockyMessage = '';
-
-// Mood button toggle
-document.querySelectorAll('.mood-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeMood = btn.dataset.mood;
-        document.getElementById('mood').value = activeMood;
-    });
-});
 
 function appendBubble(role, text) {
     const log = document.getElementById('rockyChatLog');
     const div = document.createElement('div');
     div.className = 'chat-bubble ' + (role === 'rocky' ? 'bubble-rocky' : 'bubble-human');
     if (role === 'rocky') {
-        div.innerHTML = `<div class="rocky-label">🪐 ROCKY</div>${escHtml(text)}`;
-        lastRockyMessage = text;
-        document.getElementById('current_message').value = text;
+        div.innerHTML = '<div class="rocky-label">🪐 ROCKY</div>' + escHtml(text);
+        chatHistory.push({ role: 'assistant', content: text });
     } else {
         div.textContent = text;
+        chatHistory.push({ role: 'user', content: text });
     }
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
@@ -123,72 +83,53 @@ function escHtml(t) {
     return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function setLoading(on) {
+    document.getElementById('rockySendBtn').disabled = on;
+    document.getElementById('rockyUserInput').disabled = on;
+    document.getElementById('rockyTyping').textContent = on ? 'Rocky is thinking... 🪐' : '';
+}
+
 async function sendToRocky() {
     const input = document.getElementById('rockyUserInput');
     const msg = input.value.trim();
     if (!msg) return;
     input.value = '';
     appendBubble('human', msg);
-    chatHistory.push({ role: 'user', content: msg });
     setLoading(true);
     try {
         const res = await fetch('/api/rocky/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: msg, history: chatHistory })
+            body: JSON.stringify({ message: msg, history: chatHistory.slice(-12) })
         });
         const data = await res.json();
-        if (data.error) { appendBubble('rocky', 'Is problem! ' + data.error); return; }
-        appendBubble('rocky', data.response);
-        chatHistory.push({ role: 'assistant', content: data.response });
-        document.getElementById('mood').value = 'chat';
+        appendBubble('rocky', data.error ? 'Is problem! ' + data.error : data.response);
     } catch(e) {
         appendBubble('rocky', 'Is bad! Network problem. Rocky not reach AI brain.');
-    } finally { setLoading(false); }
-}
-
-async function generateMoodMessage() {
-    setLoading(true);
-    document.getElementById('generateMoodBtn').disabled = true;
-    try {
-        const res = await fetch('/api/rocky/mood', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mood: activeMood })
-        });
-        const data = await res.json();
-        if (data.error) { appendBubble('rocky', 'Is problem! ' + data.error); return; }
-        appendBubble('rocky', data.response);
-        chatHistory.push({ role: 'assistant', content: data.response });
-        document.getElementById('mood').value = activeMood;
-    } catch(e) {
-        appendBubble('rocky', 'Is bad! Cannot reach Rocky brain.');
     } finally {
         setLoading(false);
-        document.getElementById('generateMoodBtn').disabled = false;
     }
 }
 
-function pushToDisplay() {
-    if (!lastRockyMessage) {
-        document.getElementById('pushStatus').textContent = 'No message yet — chat with Rocky first!';
-        return;
+// Rocky greets automatically when the page opens
+async function rockyGreet() {
+    try {
+        const res = await fetch('/api/rocky/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: '', history: [] })
+        });
+        const data = await res.json();
+        appendBubble('rocky', data.error ? 'Is problem! ' + data.error : data.response);
+    } catch(e) {
+        appendBubble('rocky', 'Ryland! Is good to see you, friend. Rocky is here. Yes-yes!');
+    } finally {
+        document.getElementById('rockyTyping').textContent = '';
+        document.getElementById('rockySendBtn').disabled = false;
+        document.getElementById('rockyUserInput').disabled = false;
+        document.getElementById('rockyUserInput').focus();
     }
-    document.getElementById('current_message').value = lastRockyMessage;
-    document.getElementById('pushStatus').textContent = '✓ Message ready — click "Update Now" above to push to display.';
 }
 
-function setLoading(on) {
-    document.getElementById('rockySendBtn').disabled = on;
-    document.getElementById('rockyTyping').textContent = on ? 'Rocky is thinking... 🪐' : '';
-}
-
-// Pre-load previous message if exists
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof pluginSettings !== 'undefined' && pluginSettings.current_message) {
-        lastRockyMessage = pluginSettings.current_message;
-        document.getElementById('current_message').value = lastRockyMessage;
-        appendBubble('rocky', lastRockyMessage);
-    }
-});
+document.addEventListener('DOMContentLoaded', rockyGreet);
 </script>
