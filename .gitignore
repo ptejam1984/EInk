@@ -166,6 +166,10 @@ cython_debug/
 # Development artifacts
 mock_display_output/
 
+# Device-specific runtime config (created by install script on each device)
+# Never commit — the Pi, local dev, etc. all have different hardware settings
+src/config/device.json
+
 # IDE files
 .idea
 
