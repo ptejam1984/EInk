@@ -1,0 +1,137 @@
+/* Rocky — Eridian Companion display theme
+   Deep space background, amber bioluminescence accent (#ff8c00), alien geometric sigil */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, html { width: 100%; height: 100%; background: #050510; color: #ffd080; }
+
+.rocky-root {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Jost", sans-serif;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 20% 50%, #0d0620 0%, #050510 60%);
+}
+
+/* ── Starfield ── */
+.stars { position: absolute; inset: 0; pointer-events: none; }
+.star {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0.6;
+    animation: twinkle 4s ease-in-out infinite;
+}
+@keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50%       { opacity: 0.9; }
+}
+
+/* ── Rocky's geometric sigil (abstract spider-alien form) ── */
+.rocky-sigil {
+    position: absolute;
+    left: 4%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: min(18dvh, 13vw);
+    height: min(18dvh, 13vw);
+}
+.sigil-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid #ff8c00;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-ring 3s ease-in-out infinite;
+}
+.outer-ring { width: 100%; height: 100%; opacity: 0.4; animation-delay: 0s; }
+.mid-ring   { width: 65%;  height: 65%; opacity: 0.7; animation-delay: .8s; }
+.sigil-core {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 28%; height: 28%;
+    background: #ff8c00;
+    border-radius: 50%;
+    box-shadow: 0 0 min(2dvh,1.5vw) #ff8c00, 0 0 min(4dvh,3vw) #ff460080;
+}
+/* Four "legs" radiating out */
+.sigil-leg {
+    position: absolute; top: 50%; left: 50%;
+    width: 2px; height: 45%;
+    background: linear-gradient(to bottom, #ff8c00, transparent);
+    transform-origin: top center;
+    opacity: 0.6;
+}
+.l1 { transform: rotate(45deg) translateX(-50%); }
+.l2 { transform: rotate(135deg) translateX(-50%); }
+.l3 { transform: rotate(225deg) translateX(-50%); }
+.l4 { transform: rotate(315deg) translateX(-50%); }
+@keyframes pulse-ring {
+    0%, 100% { opacity: 0.3; transform: translate(-50%,-50%) scale(1); }
+    50%       { opacity: 0.8; transform: translate(-50%,-50%) scale(1.06); }
+}
+
+/* ── Main content area ── */
+.rocky-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: min(2.5dvh, 2vw);
+    width: 72%;
+    margin-left: auto;
+    padding-right: 3%;
+}
+
+.rocky-nameplate {
+    font-size: min(2.2dvh, 1.6vw);
+    letter-spacing: 0.18em;
+    color: #ff8c00;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+.rocky-dot { font-size: 0.7em; }
+
+/* Speech bubble frame */
+.rocky-speech {
+    position: relative;
+    border: 2px solid #ff8c0055;
+    border-radius: 6px;
+    padding: min(3dvh,2.5vw) min(3.5dvh,3vw);
+    background: #0a0520cc;
+    width: 100%;
+}
+.speech-corner {
+    position: absolute;
+    width: min(1.5dvh,1.2vw);
+    height: min(1.5dvh,1.2vw);
+    border-color: #ff8c00;
+    border-style: solid;
+}
+.tl { top:-2px; left:-2px;   border-width: 2px 0 0 2px; }
+.tr { top:-2px; right:-2px;  border-width: 2px 2px 0 0; }
+.bl { bottom:-2px; left:-2px;  border-width: 0 0 2px 2px; }
+.br { bottom:-2px; right:-2px; border-width: 0 2px 2px 0; }
+
+.rocky-message {
+    font-size: min(5dvh, 3.8vw);
+    font-weight: 500;
+    line-height: 1.55;
+    color: #ffd080;
+    text-align: center;
+    text-shadow: 0 0 min(2dvh,1.5vw) #ff8c0044;
+}
+
+.rocky-footer {
+    font-size: min(1.8dvh, 1.3vw);
+    letter-spacing: 0.12em;
+    color: #ff8c00;
+    opacity: 0.55;
+    text-transform: uppercase;
+}

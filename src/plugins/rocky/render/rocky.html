@@ -1,0 +1,59 @@
+{% extends "plugin.html" %}
+
+{% block content %}
+<div class="rocky-root">
+
+    <!-- Starfield dots -->
+    <div class="stars">
+        {% for i in range(55) %}
+        <div class="star" style="
+            left:{{ (i * 37 + i * i * 3) % 100 }}%;
+            top:{{ (i * 53 + i * 7) % 100 }}%;
+            animation-delay:{{ (i * 0.3) % 4 }}s;
+            width:{{ 1 + (i % 3) }}px;
+            height:{{ 1 + (i % 3) }}px;
+        "></div>
+        {% endfor %}
+    </div>
+
+    <!-- Rocky's geometric "face" — abstract Eridian form -->
+    <div class="rocky-sigil">
+        <div class="sigil-ring outer-ring"></div>
+        <div class="sigil-ring mid-ring"></div>
+        <div class="sigil-core"></div>
+        <div class="sigil-leg l1"></div>
+        <div class="sigil-leg l2"></div>
+        <div class="sigil-leg l3"></div>
+        <div class="sigil-leg l4"></div>
+    </div>
+
+    <!-- Main message area -->
+    <div class="rocky-content">
+        <div class="rocky-nameplate">
+            <span class="rocky-dot">◆</span>
+            ROCKY &nbsp;·&nbsp; ERIDIAN COMPANION
+            <span class="rocky-dot">◆</span>
+        </div>
+
+        <div class="rocky-speech">
+            <div class="speech-corner tl"></div>
+            <div class="speech-corner tr"></div>
+            <p class="rocky-message">{{ message }}</p>
+            <div class="speech-corner bl"></div>
+            <div class="speech-corner br"></div>
+        </div>
+
+        <div class="rocky-footer">
+            {% if mood == 'science' %}🔬 SCIENCE AMAZE
+            {% elif mood == 'humor' %}😄 ROCKY JOKE
+            {% elif mood == 'emotional' %}❤️ ROCKY CARE
+            {% elif mood == 'evening' %}🌙 GOOD NIGHT
+            {% elif mood == 'chat' %}💬 ROCKY SPEAK
+            {% else %}👋 ROCKY GREETING
+            {% endif %}
+            &nbsp;·&nbsp; PROJECT HAIL MARY
+        </div>
+    </div>
+
+</div>
+{% endblock %}
