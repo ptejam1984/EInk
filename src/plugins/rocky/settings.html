@@ -10,15 +10,17 @@
 }
 .rocky-avatar-wrap {
     flex-shrink:0;
-    width:72px; height:72px;
+    width:76px; height:76px;
     border-radius:50%;
     border:2px solid #ff8c00;
     background:#050200;
-    display:flex; align-items:center; justify-content:center;
-    box-shadow: 0 0 12px #ff8c0044;
-    overflow:visible;
+    overflow:hidden;
+    box-shadow: 0 0 14px #ff8c0055;
 }
-.rocky-avatar-wrap svg { width:68px; height:68px; overflow:visible; }
+.rocky-avatar-wrap img {
+    width:100%; height:100%;
+    object-fit:cover; display:block;
+}
 .rocky-profile-text { display:flex; flex-direction:column; gap:3px; }
 .rocky-profile-name { font-size:16px; font-weight:700; color:#ff8c00; letter-spacing:.1em; }
 .rocky-profile-sub  { font-size:12px; color:#ffd08099; }
@@ -64,46 +66,13 @@
     <!-- Rocky profile header -->
     <div class="rocky-profile">
       <div class="rocky-avatar-wrap">
-        <!-- Compact Rocky SVG portrait -->
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="sglow" x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur stdDeviation="4" result="b"/>
-              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <radialGradient id="sbodyGrad" cx="45%" cy="38%" r="60%">
-              <stop offset="0%"   stop-color="#3d1500"/>
-              <stop offset="100%" stop-color="#080200"/>
-            </radialGradient>
-          </defs>
-          <!-- 8 legs -->
-          <path d="M126,82  Q152,62  170,44"  stroke="#ff8c00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-          <path d="M130,97  Q158,88  180,78"  stroke="#ff8c00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-          <path d="M130,113 Q158,122 180,132" stroke="#ff8c00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-          <path d="M126,126 Q150,148 165,168" stroke="#ff8c00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-          <path d="M74,82   Q48,62   30,44"   stroke="#ff8c00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-          <path d="M70,97   Q42,88   20,78"   stroke="#ff8c00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-          <path d="M70,113  Q42,122  20,132"  stroke="#ff8c00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-          <path d="M74,126  Q50,148  35,168"  stroke="#ff8c00" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.7"/>
-          <!-- Body glow -->
-          <ellipse cx="100" cy="104" rx="50" ry="40" fill="#ff8c00" opacity="0.08" filter="url(#sglow)"/>
-          <!-- Body -->
-          <ellipse cx="100" cy="104" rx="38" ry="30" fill="url(#sbodyGrad)" stroke="#ff8c00" stroke-width="2.5"/>
-          <ellipse cx="100" cy="104" rx="26" ry="18" fill="none" stroke="#ff8c00" stroke-width="1" opacity="0.4"/>
-          <!-- Sensor eyes -->
-          <circle cx="85"  cy="96" r="9" fill="#ff8c00" filter="url(#sglow)"/>
-          <circle cx="115" cy="96" r="9" fill="#ff8c00" filter="url(#sglow)"/>
-          <circle cx="83"  cy="93" r="4" fill="#fff" opacity="0.35"/>
-          <circle cx="113" cy="93" r="4" fill="#fff" opacity="0.35"/>
-          <!-- Mouth -->
-          <path d="M87,117 Q100,126 113,117" stroke="#ff8c00" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
-        </svg>
+        <img src="/images/rocky/project-hail-mary-rocky.avif" alt="Rocky">
       </div>
       <div class="rocky-profile-text">
         <span class="rocky-profile-name">🪐 ROCKY</span>
         <span class="rocky-profile-sub">Eridian Companion · Project Hail Mary</span>
         <span class="rocky-profile-sub" style="margin-top:4px;font-style:italic;">
-            "Amaze! Is good to see you, friend."
+            "You have problem? Tell Rocky. We figure out together."
         </span>
       </div>
     </div>

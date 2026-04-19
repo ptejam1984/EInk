@@ -16,59 +16,15 @@
         {% endfor %}
     </div>
 
-    <!-- Rocky — SVG character portrait (spider-alien, Project Hail Mary) -->
-    <div class="rocky-sigil">
-      <svg class="rocky-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="3.5" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <filter id="glow-sm" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="5" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <radialGradient id="bodyGrad" cx="45%" cy="38%" r="60%">
-            <stop offset="0%"   stop-color="#3d1500"/>
-            <stop offset="100%" stop-color="#080200"/>
-          </radialGradient>
-        </defs>
-
-        <!-- ── Legs (9 legs, like an Eridian) ── -->
-        <!-- Right side: 4 legs -->
-        <path class="leg" d="M126,82  Q152,62  170,44"/>
-        <path class="leg" d="M130,97  Q158,88  180,78"/>
-        <path class="leg" d="M130,113 Q158,122 180,132"/>
-        <path class="leg" d="M126,126 Q150,148 165,168"/>
-        <!-- Left side: 4 legs -->
-        <path class="leg" d="M74,82   Q48,62   30,44"/>
-        <path class="leg" d="M70,97   Q42,88   20,78"/>
-        <path class="leg" d="M70,113  Q42,122  20,132"/>
-        <path class="leg" d="M74,126  Q50,148  35,168"/>
-        <!-- 9th leg: centre bottom -->
-        <path class="leg" d="M100,132 Q100,158 100,178"/>
-
-        <!-- ── Body ambient glow ── -->
-        <ellipse cx="100" cy="104" rx="50" ry="40" fill="#ff8c00" opacity="0.07" filter="url(#glow-sm)"/>
-
-        <!-- ── Main body ── -->
-        <ellipse cx="100" cy="104" rx="38" ry="30" fill="url(#bodyGrad)" stroke="#ff8c00" stroke-width="2"/>
-
-        <!-- Inner shell segments -->
-        <ellipse cx="100" cy="104" rx="27" ry="19" fill="none" stroke="#ff8c00" stroke-width="1" opacity="0.4"/>
-        <ellipse cx="100" cy="104" rx="14" ry="9"  fill="none" stroke="#ff8c00" stroke-width="1" opacity="0.25"/>
-
-        <!-- ── Sensor eyes (bioluminescent amber) ── -->
-        <circle class="sensor" cx="85"  cy="96" r="8" fill="#ff8c00" filter="url(#glow)"/>
-        <circle class="sensor" cx="115" cy="96" r="8" fill="#ff8c00" filter="url(#glow)"/>
-        <!-- Eye highlight (depth) -->
-        <circle cx="83"  cy="93" r="3.5" fill="#ffffff" opacity="0.3"/>
-        <circle cx="113" cy="93" r="3.5" fill="#ffffff" opacity="0.3"/>
-
-        <!-- ── Mouth / lower sensor ── -->
-        <path d="M87,116 Q100,124 113,116" stroke="#ff8c00" stroke-width="1.5"
-              fill="none" stroke-linecap="round" opacity="0.6"/>
-      </svg>
+    <!-- Rocky — actual character portrait from Project Hail Mary -->
+    <div class="rocky-portrait-wrap">
+      {% if rocky_image_uri %}
+      <img class="rocky-portrait" src="{{ rocky_image_uri }}" alt="Rocky">
+      {% else %}
+      <!-- Fallback ring if image missing -->
+      <div class="rocky-portrait-fallback">🪐</div>
+      {% endif %}
+      <div class="rocky-portrait-glow"></div>
     </div>
 
     <!-- Main message area -->

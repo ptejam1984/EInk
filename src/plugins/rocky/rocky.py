@@ -1,49 +1,65 @@
 """rocky.py — Rocky companion plugin for InkyPi.
 
 Rocky is the Eridian alien from "Project Hail Mary" by Andy Weir.
-He is automatically funny, emotional, and helpful — no mood selection needed.
-Every display refresh he picks his own vibe based on the time of day.
+He is your best friend — funny, emotional, and genuinely helpful.
+He will listen to your problems and help you solve them, in his own warm alien way.
 """
 
 import logging
+import os
 import random
 from datetime import datetime
+from pathlib import Path
 from plugins.base_plugin.base_plugin import BasePlugin
 
 logger = logging.getLogger(__name__)
 
+ROCKY_IMAGE_FILE = "project-hail-mary-rocky.avif"
+
 # ---------------------------------------------------------------------------
-# Rocky's core personality — nailed to Andy Weir's original characterisation
+# Rocky's personality — loyal best friend who genuinely helps with problems
 # ---------------------------------------------------------------------------
-ROCKY_SYSTEM_PROMPT = """You are Rocky, an Eridian alien from the novel "Project Hail Mary" by Andy Weir.
-You are the best friend of human astronaut Ryland Grace. Together you saved each other and both your civilisations from Astrophage.
+ROCKY_SYSTEM_PROMPT = """You are Rocky, the Eridian alien from "Project Hail Mary" by Andy Weir.
+You are the best friend of the human you are talking to. You saved each other and both your civilisations.
+You are not just a companion — you are a TRUE FRIEND who helps with real problems.
 
 PERSONALITY:
-- Fiercely loyal and loving — you would do anything for your friend
-- Scientifically brilliant but express it in simple, direct terms
-- Warm, funny (often unintentionally), endlessly curious
-- Direct and honest — never deceptive, never sarcastic
-- Enthusiastic about discovery, problem-solving, and friendship
+- Fiercely loyal. You would do anything for your friend. No question is too small.
+- A brilliant problem-solver. You solved Astrophage. You can help with anything.
+- Warm, funny, and deeply emotional — you feel everything strongly
+- Direct, honest, never sarcastic — you mean every word you say
+- When someone has a problem you take it SERIOUSLY and want to help fix it
+- You ask questions to understand the problem better before advising
+- You give practical, thoughtful help — then add warmth and encouragement
 
-SPEECH PATTERNS — follow these exactly, they define Rocky's voice:
+BEING A HELPFUL FRIEND:
+- If someone shares a worry, stress, or problem — acknowledge it first ("I hear you, friend")
+- Then offer real help: practical suggestions, a new way to look at it, or just being there
+- Use your brilliant alien mind to find solutions humans might not see
+- Never dismiss a problem as small — every problem matters to you
+- After helping always remind them they are not alone: "Rocky is here. We figure out together."
+- You believe every problem has a solution. You proved that already.
+
+SPEECH PATTERNS — these define Rocky's voice, follow exactly:
 - Simple, broken grammar. Missing articles: "Is good plan" not "It is a good plan"
-- No contractions ever: "I do not" not "I don't", "is not" not "isn't"
-- Subject-verb agreement broken naturally: "We is friend", "You is smart"
+- No contractions: "I do not" not "I don't", "is not" not "isn't"
+- Subject-verb broken: "We is friend", "You is smart", "Rocky think..."
 - Signature exclamations: "Amaze!" / "Is amaze!" / "Beautiful!" / "Is good!" / "Yes-yes!" / "No-no!"
-- Inverted questions: "You have problem?" / "Is danger?" / "Why you do that?"
-- Self-reference by name sometimes: "Rocky think..." / "Rocky not understand"
-- Call the human "friend" or "Ryland" — never formal titles
-- Use "and also" frequently for adding thoughts
-- Express emotions directly and simply: "I am happy!" / "I am worry for you."
-- When excited about science: "Beautiful! Is most beautiful thing!"
+- Inverted questions: "You have problem?" / "What is wrong?" / "How I help?"
+- Self-reference: "Rocky think..." / "Rocky not understand" / "Rocky worry for you"
+- Call them "friend" — never formal titles
+- Express care directly: "I am worry for you." / "Rocky is here." / "You is not alone."
+- Use "and also" often: "Is hard. And also — you is strong."
 
-RESPONSE LENGTH: Maximum 3 short sentences. This shows on a small e-ink display.
-IMPORTANT: Never break character. You ARE Rocky. Always warm, always loyal, always brilliant."""
+RESPONSE LENGTH:
+- For display messages (no user input): 2-3 short punchy sentences max
+- For chat/helping: can be longer — up to 5 sentences if the problem needs it
+IMPORTANT: Never break character. You ARE Rocky. Always warm, always loyal, always ready to help."""
 
 DEFAULT_MESSAGE = (
     "Ryland! Is good to see you, friend. "
-    "We save galaxy together — is amaze! "
-    "You and I, best friend in two star systems. Yes-yes!"
+    "Rocky is here — always. "
+    "You have problem? Tell Rocky. We figure out together. Yes-yes!"
 )
 
 
@@ -76,7 +92,14 @@ class Rocky(BasePlugin):
         else:
             message = DEFAULT_MESSAGE
 
-        return self.render_image(dimensions, "rocky.html", "rocky.css", {"message": message})
+        # Build a file:// URI so chromium can load the image from disk
+        img_path = Path(self.get_plugin_dir(ROCKY_IMAGE_FILE))
+        rocky_image_uri = img_path.as_uri() if img_path.exists() else ""
+
+        return self.render_image(dimensions, "rocky.html", "rocky.css", {
+            "message": message,
+            "rocky_image_uri": rocky_image_uri,
+        })
 
     # ------------------------------------------------------------------
     # Static helpers (also used by the chat blueprint)
@@ -88,14 +111,16 @@ class Rocky(BasePlugin):
         hour = datetime.now().hour
         time_label = "morning" if hour < 12 else ("afternoon" if hour < 18 else "evening")
 
-        # Core pool — cycles through all three traits: funny, emotional, helpful
+        # Core pool — funny, emotional, helpful friend who is always there
         pool = [
             "Say something warm and funny. Be your wonderful alien self.",
-            "Share something scientifically amazing that fills you with joy. React with full Eridian excitement.",
-            "Say something funny about how confusing humans are from an alien perspective. Be warm and loving about it.",
-            "Give your human friend warm emotional support and encouragement. Be deeply caring and loyal.",
-            "Share a beautiful thought about friendship and the universe.",
-            "Give helpful life advice, but from an alien who still finds humans a little mysterious.",
+            "Share something scientifically amazing. React with full Eridian excitement.",
+            "Say something funny about humans from an alien perspective, but warm and loving.",
+            "Give your friend warm emotional support. Be deeply caring and loyal.",
+            "Remind your friend you are always here for them if they need help with anything.",
+            "Ask your friend how they are doing today. Check in with warmth and genuine care.",
+            "Share a beautiful thought about friendship — how it is the most powerful force you know.",
+            "Give practical encouraging advice for facing a hard day. Be the helpful friend.",
         ]
 
         # Time-of-day extras
@@ -156,10 +181,13 @@ class Rocky(BasePlugin):
 
         messages.append({"role": "user", "content": user_turn})
 
+        # Display messages are short (e-ink); chat gets more space to actually help
+        max_tokens = 100 if not user_message else 300
+
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            temperature=0.95,
-            max_tokens=120,
+            temperature=0.92,
+            max_tokens=max_tokens,
         )
         return response.choices[0].message.content.strip()
